@@ -5,17 +5,23 @@
 
 using namespace std;
 
-void selectionSort(int* a, int *indices, int n) {
-    indices[0] = 1;
+struct Node {
+    int value;
+    int index;
+    bool operator<(const Node& t) { return this->value < t.value; }
+    bool operator>(const Node& t) { return this->value > t.value; }
+    friend const openedu_out& operator<< (const openedu_out& stream, const Node& n) { return (stream << n.value); }
+};
+
+void selectionSort(Node* a, int n) {
     for (int j = 1; j < n; ++j) {
-        int key = a[j];
+        Node key = a[j];
         int i = j - 1;
         while (i > -1 && a[i] > key) {
             a[i+1] = a[i];
             --i;
         }
         a[i+1] = key;
-        indices[j] = i+2;
     }
 }
 
@@ -24,17 +30,25 @@ int main() {
     openedu_out output = openedu_out();
 
     int n; input >> n;
-    int *a = new int[n];
-    int *b = new int[n];
+    Node *a = new Node[n];
     for (int i = 0; i < n; ++i) {
-        input >> a[i];
-        b[i] = i+1;
+        input >> a[i].value;
+        a[i].index = i;
     }
 
-    selectionSort(a, b, n);
-    for (int i = 1; i < n; ++i)
-        if (b[i] != i+1)
-            output << "Swap elements at indices " << MIN(b[i], i+1) << " and " << MAX(b[i], i+1) << "." << "\n";
+    selectionSort(a, n);
+
+    for (int i = 0; i < n; ++i) {
+        if (a[i].index != i) {
+            output << "Swap elements at indices " << MIN(a[i].index+1, i+1) << " and " << MAX(a[i].index+1, i+1) << "." << "\n";
+            for (int j = 0; j < n; ++j)
+                if (a[j].index == i) {
+                    a[j].index = a[i].index;
+                    break;
+                }
+            a[i].index = i;
+        }
+    }
     output.println("No more swaps needed.");
     output.println(a, a+n);
 }

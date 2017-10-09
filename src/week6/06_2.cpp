@@ -6,9 +6,6 @@ int main() {
     openedu_in input = openedu_in();
     openedu_out output = openedu_out();
 
-    //Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US"); //.NET Framework
-    //CultureInfo.CurrentCulture = new CultureInfo("en-US"); //.NET Core
-
     int n; input >> n;
     double a; input >> a;
     double left = 0, right = a, last = -1;

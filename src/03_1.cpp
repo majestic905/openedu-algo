@@ -1,43 +1,55 @@
-#include "openedu.hpp"
-#include <algorithm>
+#include <fstream>
 #include <vector>
 
 using namespace std;
 
-void countSort(vector<int>& a, int n, int maxVal) {
-	vector<int> b(maxVal+1, 0);
-	for (int i = 0; i < n; ++i)
-		++b[a[i]];
-	int k = 0;
-	for (int i = 0; i < maxVal+1; ++i)
-		for (int j = 0; j < b[i]; ++j)
-			a[k++] = i;
+void radixSort(unsigned *begin, unsigned *end) {
+    unsigned *begin1 = new unsigned[end - begin];
+    unsigned *end1 = begin1 + (end - begin);
+    for (unsigned shift = 0; shift < 32; shift += 8) {
+        size_t count[0x100] = {};
+        for (unsigned *p = begin; p != end; p++)
+            count[(*p >> shift) & 0xFF]++;
+        unsigned *bucket[0x100], *q = begin1;
+        for (int i = 0; i < 0x100; q += count[i++])
+            bucket[i] = q;
+        for (unsigned *p = begin; p != end; p++)
+            *bucket[(*p >> shift) & 0xFF]++ = *p;
+        std::swap(begin, begin1);
+        std::swap(end, end1);
+    }
+    delete[] begin1;
 }
 
 int main() {
-    openedu_in input = openedu_in();
-    openedu_out output = openedu_out();
+    ifstream input("input.txt");
+    ofstream output("output.txt");
 
     int n, m; input >> n >> m;
-    vector<int> a(n), b(m);
-    for (int i = 0; i < n; ++i)
-        input >> a[i];
-    for (int i = 0; i < m; ++i)
-        input >> b[i];
+    unsigned *a = new unsigned[n], *b = new unsigned[m];
+    for (int i = 0; i < n; ++i) {
+        int t; input >> t;
+        a[i] = unsigned(t);
+    }
+    for (int i = 0; i < m; ++i) {
+        int t; input >> t;
+        b[i] = unsigned(t);
+    }
 
-    countSort(a, n, 40000);
-    countSort(b, m, 40000);
-
-    vector<int> r(n*m);
+    unsigned *r = new unsigned[n*m];
     for (int i = 0; i < n; ++i)
         for (int j = 0; j < m; ++j)
             r[i*m+j] = a[i]*b[j];
-    sort(r.begin(), r.end());
 
-    int sum = 0;
+    radixSort(r, r+n*m);
+
+    unsigned long long sum = 0;
     for (int i = 0; i < n*m; i += 10)
         sum += r[i];
     output << sum;
+
+    input.close();
+    output.close();
 }
 
 

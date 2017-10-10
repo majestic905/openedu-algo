@@ -12,6 +12,9 @@ int main() {
     map<string, int> labels;
     queue<unsigned short> q;
 
+    for (int i = 0; i < 26; ++i)
+        registers[i] = 0;
+
     vector<string> instructions;
     string temp; input >> temp;
     do {

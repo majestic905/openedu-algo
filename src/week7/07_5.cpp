@@ -83,8 +83,8 @@ struct Node {
 
         if ((item->left != NULL) && (item->right != NULL)) {
             Node *prev = previous(item);
-            item->key = prev->key;
             remove(prev);
+            item->key = prev->key;
         }
 
         return balance(item);
@@ -152,7 +152,7 @@ struct Node {
         }
     }
 
-    static void printTree(Node *root, openedu_out& output) {
+    static void printTree(Node *root, openedu_out output) {
         if (root == NULL)
             return;
         queue<Node*> bfsQueue;
@@ -174,7 +174,7 @@ struct Node {
                 bfsQueue.push(current->right);
                 output << " " << ++counter << "\n";
             } else
-                output << " 0\n";
+                output << " " << "0\n";
         }
     }
 
@@ -385,8 +385,7 @@ int main() {
                 Node *s = Node::search(root, key);
                 if (s != NULL) {
                     root = Node::remove(s);
-                    // we actually need to remove _prev_ node
-//                    delete s;
+                    delete s;
                 }
                 output << Node::getBalance(root) << "\n";
                 break;

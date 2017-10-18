@@ -83,8 +83,8 @@ struct Node {
 
         if ((item->left != NULL) && (item->right != NULL)) {
             Node *prev = previous(item);
-            item->key = prev->key;
             remove(prev);
+            item->key = prev->key;
         }
 
         return balance(item);
@@ -152,7 +152,7 @@ struct Node {
         }
     }
 
-    static void printTree(Node *root, openedu_out& output) {
+    static void printTree(Node *root, openedu_out output) {
         if (root == NULL)
             return;
         queue<Node*> bfsQueue;
@@ -174,7 +174,7 @@ struct Node {
                 bfsQueue.push(current->right);
                 output << " " << ++counter << "\n";
             } else
-                output << " 0\n";
+                output << " " << "0\n";
         }
     }
 
@@ -363,40 +363,44 @@ int main() {
     openedu_in input = openedu_in();
     openedu_out output = openedu_out();
 
-    Node *root = NULL;
-
     int n; input >> n;
+    vector<Node*> nodes(n, NULL);
+    vector<int> leafs;
+
+    for (int i = 0; i < n; ++i)
+        nodes[i] = new Node();
+
     for (int i = 0; i < n; ++i) {
-        string action; input >> action;
-        switch (action[0]) {
-            case 'A': {
-                int key; input >> key;
-                Node *s = Node::search(root, key);
-                if (s == NULL) {
-                    Node *node = new Node();
-                    node->key = key;
-                    root = Node::insert(root, node);
-                }
-                output << Node::getBalance(root) << "\n";
-                break;
-            }
-            case 'D': {
-                int key; input >> key;
-                Node *s = Node::search(root, key);
-                if (s != NULL) {
-                    root = Node::remove(s);
-                    // we actually need to remove _prev_ node
-//                    delete s;
-                }
-                output << Node::getBalance(root) << "\n";
-                break;
-            }
-            case 'C': {
-                int key; input >> key;
-                Node *x = Node::search(root, key);
-                output << (x == NULL ? "N\n" : "Y\n");
-                break;
-            }
+        int key, left, right; input >> key >> left >> right;
+
+        nodes[i]->key = key;
+
+        if (left != 0) {
+            nodes[left-1]->parent = nodes[i];
+            nodes[i]->left = nodes[left-1];
         }
+
+        if (right != 0) {
+            nodes[right-1]->parent = nodes[i];
+            nodes[i]->right = nodes[right-1];
+        }
+
+        if (right == 0 && left == 0)
+            leafs.push_back(i);
     }
+
+    for (int i = 0, ilen = leafs.size(); i < ilen; ++i)
+        Node::updateHeight(nodes[leafs[i]]);
+
+    int key; input >> key;
+    Node *root = Node::getRoot(nodes[0]);
+    Node *useless = Node::search(root, key);
+    root = Node::remove(useless);
+
+    output << n-1 << "\n";
+    if (root != NULL)
+        Node::printTree(root, output);
+
+    for (int i = 0; i < n; ++i)
+        delete nodes[i];
 }
